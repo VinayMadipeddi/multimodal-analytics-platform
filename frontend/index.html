@@ -1,0 +1,1512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Multimodal Multi-Agent Intelligent Data Analytics Platform</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Plotly.js -->
+  <script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.28.0/plotly.min.js"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8', 900: '#1e3a8a'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
+
+  <!-- TOP BAR -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 px-6 py-3 flex items-center justify-between">
+    <div class="flex items-center space-x-3">
+      <div class="bg-blue-600 text-white p-2 rounded-lg shadow-sm">
+        <i data-lucide="cpu" class="w-6 h-6"></i>
+      </div>
+      <div>
+        <h1 class="text-lg font-bold text-slate-900 leading-tight">Multimodal Multi-Agent Analytics Platform</h1>
+        <p class="text-xs text-slate-500 font-medium">B.Tech CS (Data Science) Project • Autonomous Real-Data Engine</p>
+      </div>
+    </div>
+
+    <!-- Active Session & Status Pills -->
+    <div class="flex items-center space-x-4">
+      <div class="flex items-center bg-slate-100 rounded-lg p-1 text-xs font-medium text-slate-600">
+        <span class="px-2 py-0.5 text-slate-400">Session:</span>
+        <select id="session-select" class="bg-transparent font-semibold text-slate-800 focus:outline-none cursor-pointer pr-2" onchange="handleSessionChange()">
+          <option value="default">Default Session</option>
+        </select>
+        <button onclick="promptCreateSession()" class="ml-1 p-1 hover:bg-white rounded text-blue-600" title="New Session">
+          <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+        </button>
+      </div>
+
+      <div class="hidden md:flex items-center space-x-2 text-xs">
+        <span id="badge-llm" class="px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 flex items-center gap-1 font-medium">
+          <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> LLM: Rule-Based
+        </span>
+        <span id="badge-ocr" class="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 flex items-center gap-1 font-medium">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> OCR: Tesseract
+        </span>
+        <span id="badge-stt" class="px-2.5 py-1 rounded-full bg-blue-100 text-blue-800 flex items-center gap-1 font-medium">
+          <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span> STT: Acoustic
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN WRAPPER -->
+  <div class="flex-1 flex overflow-hidden">
+    
+    <!-- SIDEBAR NAVIGATION -->
+    <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col flex-shrink-0">
+      <div class="p-4 text-xs font-semibold uppercase tracking-wider text-slate-400 border-b border-slate-800">
+        Analytics Workspace
+      </div>
+      <nav class="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-1">
+        <button onclick="navigate('home')" id="nav-home" class="nav-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition text-white bg-blue-600">
+          <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+          <span>1. Home Dashboard</span>
+        </button>
+        <button onclick="navigate('upload')" id="nav-upload" class="nav-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition hover:bg-slate-800 hover:text-white">
+          <i data-lucide="upload-cloud" class="w-4 h-4"></i>
+          <span>2. Upload Center</span>
+        </button>
+        <button onclick="navigate('explorer')" id="nav-explorer" class="nav-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition hover:bg-slate-800 hover:text-white">
+          <i data-lucide="table" class="w-4 h-4"></i>
+          <span>3. Data Explorer</span>
+        </button>
+        <button onclick="navigate('cleaning')" id="nav-cleaning" class="nav-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition hover:bg-slate-800 hover:text-white">
+          <i data-lucide="sparkles" class="w-4 h-4"></i>
+          <span>4. Data Cleaning</span>
+        </button>
+        <button onclick="navigate('analytics')" id="nav-analytics" class="nav-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition hover:bg-slate-800 hover:text-white">
+          <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
+          <span>5. Analytics Dashboard</span>
+        </button>
+        <button onclick="navigate('analyst')" id="nav-analyst" class="nav-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition hover:bg-slate-800 hover:text-white">
+          <i data-lucide="message-square-code" class="w-4 h-4"></i>
+          <span>6. AI Data Analyst</span>
+        </button>
+        <button onclick="navigate('agents')" id="nav-agents" class="nav-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition hover:bg-slate-800 hover:text-white">
+          <i data-lucide="workflow" class="w-4 h-4"></i>
+          <span>7. Agent Activity Center</span>
+        </button>
+        <button onclick="navigate('documents')" id="nav-documents" class="nav-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition hover:bg-slate-800 hover:text-white">
+          <i data-lucide="file-text" class="w-4 h-4"></i>
+          <span>8. Multimodal Documents</span>
+        </button>
+        <button onclick="navigate('reports')" id="nav-reports" class="nav-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition hover:bg-slate-800 hover:text-white">
+          <i data-lucide="file-check" class="w-4 h-4"></i>
+          <span>9. Report Center</span>
+        </button>
+        <button onclick="navigate('history')" id="nav-history" class="nav-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition hover:bg-slate-800 hover:text-white">
+          <i data-lucide="history" class="w-4 h-4"></i>
+          <span>10. Analysis History</span>
+        </button>
+        <button onclick="navigate('settings')" id="nav-settings" class="nav-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-medium transition hover:bg-slate-800 hover:text-white">
+          <i data-lucide="settings" class="w-4 h-4"></i>
+          <span>11. Settings & Config</span>
+        </button>
+      </nav>
+
+      <div class="p-3 border-t border-slate-800 text-xs text-slate-400 flex items-center justify-between">
+        <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-400"></span> Backend Online</span>
+        <span class="text-slate-500">v1.0.0</span>
+      </div>
+    </aside>
+
+    <!-- CONTENT WORKSPACE -->
+    <main class="flex-1 overflow-y-auto custom-scrollbar p-6 bg-slate-50">
+      
+      <!-- PAGE 1: HOME DASHBOARD -->
+      <section id="page-home" class="page-content space-y-6">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-gradient-to-r from-blue-900 to-indigo-900 text-white p-6 rounded-2xl shadow-sm">
+          <div>
+            <span class="inline-block px-2.5 py-1 rounded bg-blue-800/80 text-blue-200 text-xs font-semibold tracking-wide uppercase mb-2">B.Tech CS Data Science Capstone</span>
+            <h2 class="text-2xl font-bold">Multimodal Multi-Agent Intelligent Analytics</h2>
+            <p class="text-blue-200 text-sm mt-1 max-w-2xl">
+              Upload real tabular datasets, PDFs, images, audio, and documents. Six collaborating LangGraph AI agents perform automated data quality inspection, statistical tests, visual profiling, and executive PDF reporting.
+            </p>
+          </div>
+          <div class="flex flex-wrap gap-2.5">
+            <button onclick="navigate('upload')" class="px-4 py-2 bg-blue-500 hover:bg-blue-400 text-white text-sm font-medium rounded-lg shadow-sm flex items-center gap-2">
+              <i data-lucide="upload-cloud" class="w-4 h-4"></i> Upload Data
+            </button>
+            <button onclick="startFullAnalysisWorkflow()" class="px-4 py-2 bg-white text-blue-900 hover:bg-blue-50 text-sm font-semibold rounded-lg shadow-sm flex items-center gap-2">
+              <i data-lucide="play" class="w-4 h-4"></i> Start Full Analysis
+            </button>
+          </div>
+        </div>
+
+        <!-- Metric KPI Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+            <div class="flex items-center justify-between text-slate-500 mb-2">
+              <span class="text-xs font-semibold uppercase">Uploaded Files</span>
+              <i data-lucide="files" class="w-4 h-4 text-blue-500"></i>
+            </div>
+            <div id="home-kpi-files" class="text-2xl font-bold text-slate-900">0</div>
+            <p class="text-xs text-slate-400 mt-1">Multimodal data sources</p>
+          </div>
+          <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+            <div class="flex items-center justify-between text-slate-500 mb-2">
+              <span class="text-xs font-semibold uppercase">Active Datasets</span>
+              <i data-lucide="database" class="w-4 h-4 text-emerald-500"></i>
+            </div>
+            <div id="home-kpi-datasets" class="text-2xl font-bold text-slate-900">0</div>
+            <p class="text-xs text-slate-400 mt-1">Processed working datasets</p>
+          </div>
+          <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+            <div class="flex items-center justify-between text-slate-500 mb-2">
+              <span class="text-xs font-semibold uppercase">Executed Workflows</span>
+              <i data-lucide="workflow" class="w-4 h-4 text-indigo-500"></i>
+            </div>
+            <div id="home-kpi-workflows" class="text-2xl font-bold text-slate-900">0</div>
+            <p class="text-xs text-slate-400 mt-1">Multi-agent orchestrations</p>
+          </div>
+          <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+            <div class="flex items-center justify-between text-slate-500 mb-2">
+              <span class="text-xs font-semibold uppercase">Generated Reports</span>
+              <i data-lucide="file-check" class="w-4 h-4 text-purple-500"></i>
+            </div>
+            <div id="home-kpi-reports" class="text-2xl font-bold text-slate-900">0</div>
+            <p class="text-xs text-slate-400 mt-1">Downloadable PDF deliverables</p>
+          </div>
+        </div>
+
+        <!-- Recent Activity & Files List -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="font-bold text-slate-800 flex items-center gap-2">
+                <i data-lucide="file-spreadsheet" class="w-4 h-4 text-blue-600"></i> Current Session Files
+              </h3>
+              <button onclick="navigate('upload')" class="text-xs text-blue-600 hover:underline font-medium">Upload more</button>
+            </div>
+            <div id="home-files-list" class="space-y-2 text-sm">
+              <div class="text-slate-400 py-6 text-center text-xs">No files uploaded yet in this session. Click Upload Data to begin.</div>
+            </div>
+          </div>
+
+          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="font-bold text-slate-800 flex items-center gap-2">
+                <i data-lucide="activity" class="w-4 h-4 text-indigo-600"></i> Recent Agent Executions
+              </h3>
+              <button onclick="navigate('agents')" class="text-xs text-blue-600 hover:underline font-medium">View Agent Center</button>
+            </div>
+            <div id="home-workflows-list" class="space-y-2 text-sm">
+              <div class="text-slate-400 py-6 text-center text-xs">No agent workflows executed yet. Start an analysis to track agent activity.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PAGE 2: UPLOAD CENTER -->
+      <section id="page-upload" class="page-content space-y-6 hidden">
+        <div>
+          <h2 class="text-xl font-bold text-slate-900">Upload Center</h2>
+          <p class="text-sm text-slate-500">Select or drop your actual data files. The system automatically inspects headers and routes to appropriate processors.</p>
+        </div>
+
+        <!-- Drag & Drop Zone -->
+        <div id="drop-zone" class="border-2 border-dashed border-blue-300 hover:border-blue-500 bg-blue-50/50 hover:bg-blue-50 transition p-8 rounded-2xl text-center cursor-pointer">
+          <input type="file" id="file-input" multiple class="hidden" onchange="handleFileSelect(event)">
+          <div class="max-w-md mx-auto space-y-3">
+            <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto">
+              <i data-lucide="upload" class="w-6 h-6"></i>
+            </div>
+            <h4 class="font-semibold text-slate-800 text-base">Drag and drop files here, or click to browse</h4>
+            <p class="text-xs text-slate-500">
+              Supports CSV, Excel (XLSX, XLS), PDF documents, Images (PNG, JPG), Audio (WAV, MP3), and Plain Text. Max 50 MB per file.
+            </p>
+            <div class="pt-2">
+              <button type="button" onclick="document.getElementById('file-input').click()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium shadow-sm">
+                Select Files
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Upload Status List -->
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="font-bold text-slate-800 text-sm">Session File Ingestion Status</h3>
+            <button onclick="loadFiles()" class="text-xs text-slate-500 hover:text-slate-700 flex items-center gap-1">
+              <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Refresh
+            </button>
+          </div>
+          <div id="upload-table-container" class="overflow-x-auto">
+            <table class="w-full text-left text-sm">
+              <thead class="bg-slate-50 text-slate-500 text-xs uppercase border-b border-slate-200">
+                <tr>
+                  <th class="py-2.5 px-3">Filename</th>
+                  <th class="py-2.5 px-3">Type</th>
+                  <th class="py-2.5 px-3">Size</th>
+                  <th class="py-2.5 px-3">Status</th>
+                  <th class="py-2.5 px-3">Extraction Summary</th>
+                  <th class="py-2.5 px-3 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="upload-table-body" class="divide-y divide-slate-100">
+                <tr><td colspan="6" class="text-center py-6 text-slate-400 text-xs">No files uploaded yet in this session.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- PAGE 3: DATA EXPLORER -->
+      <section id="page-explorer" class="page-content space-y-6 hidden">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h2 class="text-xl font-bold text-slate-900">Data Explorer</h2>
+            <p class="text-sm text-slate-500">Inspect actual dataset dimensions, schema, types, missingness, and live data rows.</p>
+          </div>
+          <div class="flex items-center space-x-2">
+            <label class="text-xs font-semibold text-slate-600">Dataset:</label>
+            <select id="explorer-dataset-select" class="bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs font-medium text-slate-800" onchange="loadExplorerData()">
+              <option value="">No datasets available</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Profiling Summary Grid -->
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+          <div class="bg-white p-3 rounded-lg border border-slate-200">
+            <span class="text-xs text-slate-400 font-medium">Total Rows</span>
+            <div id="exp-stat-rows" class="text-xl font-bold text-slate-900 mt-1">-</div>
+          </div>
+          <div class="bg-white p-3 rounded-lg border border-slate-200">
+            <span class="text-xs text-slate-400 font-medium">Total Columns</span>
+            <div id="exp-stat-cols" class="text-xl font-bold text-slate-900 mt-1">-</div>
+          </div>
+          <div class="bg-white p-3 rounded-lg border border-slate-200">
+            <span class="text-xs text-slate-400 font-medium">Missing Cells</span>
+            <div id="exp-stat-missing" class="text-xl font-bold text-amber-600 mt-1">-</div>
+          </div>
+          <div class="bg-white p-3 rounded-lg border border-slate-200">
+            <span class="text-xs text-slate-400 font-medium">Duplicate Rows</span>
+            <div id="exp-stat-dups" class="text-xl font-bold text-indigo-600 mt-1">-</div>
+          </div>
+          <div class="bg-white p-3 rounded-lg border border-slate-200">
+            <span class="text-xs text-slate-400 font-medium">Memory Footprint</span>
+            <div id="exp-stat-memory" class="text-xl font-bold text-slate-700 mt-1">-</div>
+          </div>
+        </div>
+
+        <!-- Schema Table -->
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
+          <h3 class="font-bold text-slate-800 text-sm">Column Data Schema & Types</h3>
+          <div class="overflow-x-auto max-h-60 custom-scrollbar">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-50 text-slate-500 uppercase sticky top-0">
+                <tr>
+                  <th class="py-2 px-3">Column Name</th>
+                  <th class="py-2 px-3">Inferred Type</th>
+                  <th class="py-2 px-3">Missing Values</th>
+                  <th class="py-2 px-3">Unique Values</th>
+                  <th class="py-2 px-3">Sample Values</th>
+                </tr>
+              </thead>
+              <tbody id="explorer-schema-body" class="divide-y divide-slate-100">
+                <tr><td colspan="5" class="text-center py-4 text-slate-400">Select a dataset to view schema.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Actual Data Rows Preview -->
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
+          <div class="flex items-center justify-between">
+            <h3 class="font-bold text-slate-800 text-sm">Working Dataset Rows Preview</h3>
+            <div class="flex items-center space-x-2 text-xs">
+              <span id="explorer-pagination-label" class="text-slate-500">Page 1</span>
+              <button onclick="explorerChangePage(-1)" class="p-1 border rounded hover:bg-slate-50"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
+              <button onclick="explorerChangePage(1)" class="p-1 border rounded hover:bg-slate-50"><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
+            </div>
+          </div>
+          <div class="overflow-x-auto max-h-96 custom-scrollbar border border-slate-100 rounded-lg">
+            <table class="w-full text-left text-xs whitespace-nowrap">
+              <thead id="explorer-data-head" class="bg-slate-50 text-slate-600 font-semibold sticky top-0 border-b border-slate-200">
+                <tr><th class="py-2 px-3">Data</th></tr>
+              </thead>
+              <tbody id="explorer-data-body" class="divide-y divide-slate-100 font-mono">
+                <tr><td class="text-center py-6 text-slate-400 font-sans">No data rows loaded.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- PAGE 4: DATA CLEANING WORKSPACE -->
+      <section id="page-cleaning" class="page-content space-y-6 hidden">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h2 class="text-xl font-bold text-slate-900">Data Cleaning Workspace</h2>
+            <p class="text-sm text-slate-500">Apply deterministic cleaning transformations to working datasets. Raw original uploads remain preserved.</p>
+          </div>
+          <div class="flex items-center space-x-2">
+            <button onclick="exportCleanedData('csv')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1 shadow-sm">
+              <i data-lucide="download" class="w-3.5 h-3.5"></i> Export CSV
+            </button>
+            <button onclick="exportCleanedData('xlsx')" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1 shadow-sm">
+              <i data-lucide="file-spreadsheet" class="w-3.5 h-3.5"></i> Export Excel
+            </button>
+          </div>
+        </div>
+
+        <!-- Cleaning Operations Controls -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <!-- Missing Values Box -->
+          <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-3">
+            <h4 class="font-bold text-slate-800 text-sm flex items-center gap-1.5">
+              <i data-lucide="eraser" class="w-4 h-4 text-amber-500"></i> Missing Values
+            </h4>
+            <div class="space-y-2 text-xs">
+              <label class="block text-slate-500 font-medium">Strategy:</label>
+              <select id="clean-impute-strategy" class="w-full border rounded-lg p-2 bg-slate-50">
+                <option value="mean">Impute with Mean (Numeric)</option>
+                <option value="median">Impute with Median (Numeric)</option>
+                <option value="mode">Impute with Mode (Most Frequent)</option>
+                <option value="forward_fill">Forward Fill (Time-series)</option>
+              </select>
+              <button onclick="executeCleaning('fill_missing')" class="w-full py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-lg font-medium transition">
+                Apply Imputation
+              </button>
+              <button onclick="executeCleaning('drop_missing_rows')" class="w-full py-1.5 border border-red-200 text-red-600 hover:bg-red-50 rounded-lg font-medium transition">
+                Drop Rows with Missing Values
+              </button>
+            </div>
+          </div>
+
+          <!-- Duplicates & Outliers Box -->
+          <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-3">
+            <h4 class="font-bold text-slate-800 text-sm flex items-center gap-1.5">
+              <i data-lucide="copy" class="w-4 h-4 text-blue-500"></i> Deduplication & Outliers
+            </h4>
+            <div class="space-y-2 text-xs">
+              <button onclick="executeCleaning('drop_duplicates')" class="w-full py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-lg font-medium transition">
+                Remove Duplicate Records
+              </button>
+              <div class="pt-2 border-t border-slate-100">
+                <label class="block text-slate-500 font-medium mb-1">Outlier Treatment (IQR 1.5):</label>
+                <div class="flex gap-2">
+                  <button onclick="executeCleaning('remove_outliers', {action: 'filter', method: 'iqr'})" class="flex-1 py-1.5 bg-slate-100 hover:bg-slate-200 rounded font-medium text-slate-700">
+                    Filter Out
+                  </button>
+                  <button onclick="executeCleaning('remove_outliers', {action: 'winsorize', method: 'iqr'})" class="flex-1 py-1.5 bg-slate-100 hover:bg-slate-200 rounded font-medium text-slate-700">
+                    Winsorize
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Normalization Box -->
+          <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-3">
+            <h4 class="font-bold text-slate-800 text-sm flex items-center gap-1.5">
+              <i data-lucide="type" class="w-4 h-4 text-emerald-500"></i> Text Normalization
+            </h4>
+            <div class="space-y-2 text-xs">
+              <label class="block text-slate-500 font-medium">Text Case:</label>
+              <div class="flex gap-2">
+                <button onclick="executeCleaning('normalize_text', {case: 'lower'})" class="flex-1 py-1.5 border rounded hover:bg-slate-50">lowercase</button>
+                <button onclick="executeCleaning('normalize_text', {case: 'title'})" class="flex-1 py-1.5 border rounded hover:bg-slate-50">Title Case</button>
+                <button onclick="executeCleaning('normalize_text', {case: 'upper'})" class="flex-1 py-1.5 border rounded hover:bg-slate-50">UPPER</button>
+              </div>
+              <p class="text-[11px] text-slate-400">Trims leading/trailing whitespace across all text columns.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Audit Trail / History Table -->
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
+          <h3 class="font-bold text-slate-800 text-sm">Cleaning Audit Trail & Operations History</h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-50 text-slate-500 uppercase border-b border-slate-200">
+                <tr>
+                  <th class="py-2.5 px-3">Timestamp</th>
+                  <th class="py-2.5 px-3">Operation</th>
+                  <th class="py-2.5 px-3">Rows Affected</th>
+                  <th class="py-2.5 px-3">Summary</th>
+                </tr>
+              </thead>
+              <tbody id="cleaning-history-body" class="divide-y divide-slate-100">
+                <tr><td colspan="4" class="text-center py-6 text-slate-400">No cleaning operations recorded yet.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- PAGE 5: ANALYTICS DASHBOARD -->
+      <section id="page-analytics" class="page-content space-y-6 hidden">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h2 class="text-xl font-bold text-slate-900">Analytics Dashboard</h2>
+            <p class="text-sm text-slate-500">Automated descriptive statistics, correlation matrices, group aggregations, and hypothesis tests.</p>
+          </div>
+          <div class="flex items-center space-x-2">
+            <select id="analytics-chart-type" class="bg-white border rounded-lg px-3 py-1.5 text-xs font-medium">
+              <option value="bar">Bar Chart</option>
+              <option value="line">Line Chart</option>
+              <option value="scatter">Scatter Plot</option>
+              <option value="histogram">Histogram</option>
+              <option value="box">Box Plot</option>
+              <option value="heatmap">Correlation Heatmap</option>
+              <option value="pie">Pie Chart</option>
+            </select>
+            <button onclick="renderSelectedChart()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold shadow-sm">
+              Render Chart
+            </button>
+          </div>
+        </div>
+
+        <!-- Interactive Plotly Chart Container -->
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+          <div id="plotly-container" class="w-full h-80 flex items-center justify-center text-slate-400 text-sm">
+            Select a dataset and chart type to render interactive visualization.
+          </div>
+        </div>
+
+        <!-- Statistical Hypothesis Testing Engine -->
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
+          <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+            <i data-lucide="scale" class="w-4 h-4 text-blue-600"></i> Statistical Hypothesis Testing
+          </h3>
+          <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
+            <div>
+              <label class="block text-slate-500 font-medium mb-1">Test Type:</label>
+              <select id="stat-test-type" class="w-full border rounded-lg p-2 bg-slate-50">
+                <option value="t_test_ind">Welch's Two-Sample t-Test</option>
+                <option value="anova">One-Way ANOVA</option>
+                <option value="chi2">Chi-Square Independence Test</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-slate-500 font-medium mb-1">Variable 1:</label>
+              <select id="stat-col-1" class="w-full border rounded-lg p-2 bg-slate-50"></select>
+            </div>
+            <div>
+              <label class="block text-slate-500 font-medium mb-1">Variable 2 / Group:</label>
+              <select id="stat-col-2" class="w-full border rounded-lg p-2 bg-slate-50"></select>
+            </div>
+            <div class="flex items-end">
+              <button onclick="runHypothesisTest()" class="w-full py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg font-semibold shadow-sm">
+                Run Test
+              </button>
+            </div>
+          </div>
+
+          <div id="hypothesis-result" class="hidden p-4 rounded-lg bg-slate-50 border border-slate-200 text-xs space-y-2">
+            <!-- Results rendered here -->
+          </div>
+        </div>
+      </section>
+
+      <!-- PAGE 6: AI DATA ANALYST -->
+      <section id="page-analyst" class="page-content space-y-4 hidden flex flex-col h-[calc(100vh-8rem)]">
+        <div class="flex items-center justify-between pb-2 border-b border-slate-200">
+          <div>
+            <h2 class="text-xl font-bold text-slate-900">AI Data Analyst</h2>
+            <p class="text-xs text-slate-500">Ask questions about your uploaded datasets and multimodal documents. Answers are strictly grounded in calculated metrics and retrieved text passages.</p>
+          </div>
+          <button onclick="clearChat()" class="px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 border border-red-200 rounded-lg">
+            Clear Chat
+          </button>
+        </div>
+
+        <!-- Chat Messages Scroll Area -->
+        <div id="chat-messages" class="flex-1 overflow-y-auto custom-scrollbar p-4 bg-white rounded-xl border border-slate-200 space-y-4">
+          <div class="flex items-start gap-3">
+            <div class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold flex-shrink-0">AI</div>
+            <div class="bg-slate-100 p-3.5 rounded-2xl rounded-tl-sm text-sm text-slate-800 max-w-2xl space-y-1">
+              <p>Hello! I am your Multimodal AI Data Analyst. You can ask me questions about your uploaded CSV/Excel data, PDFs, audio transcripts, or images.</p>
+              <p class="text-xs text-slate-500 pt-1">Try asking: <em>"What are the key statistical findings in this dataset?"</em> or <em>"Summarize missing values and recommended actions."</em></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chat Input Bar -->
+        <div class="bg-white p-3 rounded-xl border border-slate-200 flex gap-2">
+          <input type="text" id="chat-input" placeholder="Ask a question about your uploaded data or documents..." class="flex-1 px-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-blue-500" onkeydown="if(event.key==='Enter') sendChatMessage()">
+          <button onclick="sendChatMessage()" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold flex items-center gap-1.5 shadow-sm">
+            <i data-lucide="send" class="w-4 h-4"></i> Send
+          </button>
+        </div>
+      </section>
+
+      <!-- PAGE 7: AGENT ACTIVITY CENTER -->
+      <section id="page-agents" class="page-content space-y-6 hidden">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h2 class="text-xl font-bold text-slate-900">Agent Activity Center</h2>
+            <p class="text-sm text-slate-500">Real-time status and execution records of the six specialized LangGraph AI agents.</p>
+          </div>
+          <button onclick="startFullAnalysisWorkflow()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold shadow-sm flex items-center gap-1.5">
+            <i data-lucide="play" class="w-3.5 h-3.5"></i> Trigger Full Multi-Agent Workflow
+          </button>
+        </div>
+
+        <!-- 6 Agents Architecture Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Agent 1 -->
+          <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-blue-600 uppercase">Agent 1</span>
+              <span id="agent-badge-1" class="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-600">IDLE</span>
+            </div>
+            <h4 class="font-bold text-slate-800 text-sm">Data Ingestion Agent</h4>
+            <p class="text-xs text-slate-500">Detects file format, routes to processors, verifies schema, identifies suitability for stats or search.</p>
+          </div>
+
+          <!-- Agent 2 -->
+          <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-emerald-600 uppercase">Agent 2</span>
+              <span id="agent-badge-2" class="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-600">IDLE</span>
+            </div>
+            <h4 class="font-bold text-slate-800 text-sm">Data Quality & Cleaning Agent</h4>
+            <p class="text-xs text-slate-500">Detects missingness, duplicates, constant columns, outliers, and suggests concrete cleaning strategies.</p>
+          </div>
+
+          <!-- Agent 3 -->
+          <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-purple-600 uppercase">Agent 3</span>
+              <span id="agent-badge-3" class="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-600">IDLE</span>
+            </div>
+            <h4 class="font-bold text-slate-800 text-sm">Statistical Analysis Agent</h4>
+            <p class="text-xs text-slate-500">Computes descriptive statistics, distributions, correlation matrices, and evaluates assumption validity.</p>
+          </div>
+
+          <!-- Agent 4 -->
+          <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-amber-600 uppercase">Agent 4</span>
+              <span id="agent-badge-4" class="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-600">IDLE</span>
+            </div>
+            <h4 class="font-bold text-slate-800 text-sm">Visualization Agent</h4>
+            <p class="text-xs text-slate-500">Inspects schemas and dynamically generates interactive Plotly visualizations matching dataset distributions.</p>
+          </div>
+
+          <!-- Agent 5 -->
+          <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-indigo-600 uppercase">Agent 5</span>
+              <span id="agent-badge-5" class="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-600">IDLE</span>
+            </div>
+            <h4 class="font-bold text-slate-800 text-sm">AI Decision Support Agent</h4>
+            <p class="text-xs text-slate-500">Interprets calculated metrics, cross-references citations, and formats evidence-based recommendations.</p>
+          </div>
+
+          <!-- Agent 6 -->
+          <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-rose-600 uppercase">Agent 6</span>
+              <span id="agent-badge-6" class="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-600">IDLE</span>
+            </div>
+            <h4 class="font-bold text-slate-800 text-sm">Report Generation Agent</h4>
+            <p class="text-xs text-slate-500">Compiles completed analytical outputs, visualizations, and recommendations into an executive PDF report.</p>
+          </div>
+        </div>
+
+        <!-- Real Execution Log -->
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
+          <h3 class="font-bold text-slate-800 text-sm">Agent Execution Timeline & Audit Log</h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-50 text-slate-500 uppercase border-b border-slate-200">
+                <tr>
+                  <th class="py-2.5 px-3">Agent</th>
+                  <th class="py-2.5 px-3">Started At</th>
+                  <th class="py-2.5 px-3">Completed At</th>
+                  <th class="py-2.5 px-3">Status</th>
+                  <th class="py-2.5 px-3">Execution Summary</th>
+                </tr>
+              </thead>
+              <tbody id="agent-timeline-body" class="divide-y divide-slate-100">
+                <tr><td colspan="5" class="text-center py-6 text-slate-400">No agent workflows triggered yet.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- PAGE 8: MULTIMODAL DOCUMENT EXPLORER -->
+      <section id="page-documents" class="page-content space-y-6 hidden">
+        <div>
+          <h2 class="text-xl font-bold text-slate-900">Multimodal Document Explorer</h2>
+          <p class="text-sm text-slate-500">Inspect extracted content from PDFs, image OCR, audio transcripts, and plain-text files.</p>
+        </div>
+
+        <!-- Search Bar across Documents -->
+        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex gap-2">
+          <input type="text" id="doc-search-input" placeholder="Search keywords across uploaded documents and transcripts..." class="flex-1 px-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-blue-500" onkeydown="if(event.key==='Enter') searchDocuments()">
+          <button onclick="searchDocuments()" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-sm font-semibold flex items-center gap-1.5">
+            <i data-lucide="search" class="w-4 h-4"></i> Search
+          </button>
+        </div>
+
+        <!-- Search Results / Document Cards -->
+        <div id="doc-search-results" class="space-y-3"></div>
+
+        <div id="doc-cards-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Populated by JS -->
+        </div>
+      </section>
+
+      <!-- PAGE 9: REPORT CENTER -->
+      <section id="page-reports" class="page-content space-y-6 hidden">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h2 class="text-xl font-bold text-slate-900">Report Center</h2>
+            <p class="text-sm text-slate-500">Generate executive PDF analytics reports using ReportLab with tables, charts, and recommendations.</p>
+          </div>
+          <button onclick="generatePDFReport()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold shadow-sm flex items-center gap-1.5">
+            <i data-lucide="file-plus" class="w-4 h-4"></i> Generate Executive PDF Report
+          </button>
+        </div>
+
+        <!-- Generated Reports List -->
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
+          <h3 class="font-bold text-slate-800 text-sm">Generated Executive PDF Reports</h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-50 text-slate-500 uppercase border-b border-slate-200">
+                <tr>
+                  <th class="py-2.5 px-3">Report Title</th>
+                  <th class="py-2.5 px-3">Session ID</th>
+                  <th class="py-2.5 px-3">Generated At</th>
+                  <th class="py-2.5 px-3">Executive Summary</th>
+                  <th class="py-2.5 px-3 text-right">Download</th>
+                </tr>
+              </thead>
+              <tbody id="reports-table-body" class="divide-y divide-slate-100">
+                <tr><td colspan="5" class="text-center py-6 text-slate-400">No reports generated yet. Click Generate Executive PDF Report.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- PAGE 10: ANALYSIS HISTORY -->
+      <section id="page-history" class="page-content space-y-6 hidden">
+        <div>
+          <h2 class="text-xl font-bold text-slate-900">Analysis History</h2>
+          <p class="text-sm text-slate-500">Permanent database audit log of all analysis sessions, uploaded datasets, and executed jobs.</p>
+        </div>
+
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
+          <h3 class="font-bold text-slate-800 text-sm">Saved Analysis Sessions</h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-50 text-slate-500 uppercase border-b border-slate-200">
+                <tr>
+                  <th class="py-2.5 px-3">Session ID</th>
+                  <th class="py-2.5 px-3">Title</th>
+                  <th class="py-2.5 px-3">Created</th>
+                  <th class="py-2.5 px-3">Last Updated</th>
+                  <th class="py-2.5 px-3 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="history-sessions-body" class="divide-y divide-slate-100">
+                <tr><td colspan="5" class="text-center py-6 text-slate-400">Loading history...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- PAGE 11: SETTINGS & CONFIGURATION -->
+      <section id="page-settings" class="page-content space-y-6 hidden">
+        <div>
+          <h2 class="text-xl font-bold text-slate-900">Settings & Configuration</h2>
+          <p class="text-sm text-slate-500">Service configurations, external AI provider settings, and engine diagnostics.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
+            <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+              <i data-lucide="key" class="w-4 h-4 text-amber-500"></i> AI Provider Configuration
+            </h3>
+            <div class="space-y-3 text-xs">
+              <div>
+                <span class="block text-slate-500 font-medium">Configured Provider:</span>
+                <span id="cfg-provider" class="font-mono font-semibold text-slate-800">deterministic_analytical_engine</span>
+              </div>
+              <div>
+                <span class="block text-slate-500 font-medium">Model:</span>
+                <span id="cfg-model" class="font-mono font-semibold text-slate-800">rule-based-statistical-reasoning</span>
+              </div>
+              <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 space-y-1">
+                <p class="font-semibold text-slate-700">Enabling External Cloud LLM:</p>
+                <p class="text-slate-500">To enable cloud LLMs (OpenAI, Gemini, Anthropic), set the respective environment variable in your <code>.env</code> file:</p>
+                <code class="block bg-slate-100 p-2 rounded text-[11px] font-mono text-slate-700">OPENAI_API_KEY="your-api-key"</code>
+                <p class="text-slate-500 text-[11px]">When no key is configured, the platform safely uses verified deterministic statistical calculations.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
+            <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+              <i data-lucide="hard-drive" class="w-4 h-4 text-blue-500"></i> Infrastructure & Storage
+            </h3>
+            <div class="space-y-3 text-xs">
+              <div>
+                <span class="block text-slate-500 font-medium">Relational Database:</span>
+                <span id="cfg-db" class="font-mono font-semibold text-slate-800">SQLite (Persisted)</span>
+              </div>
+              <div>
+                <span class="block text-slate-500 font-medium">OCR Engine:</span>
+                <span id="cfg-ocr" class="font-mono font-semibold text-slate-800">Tesseract OCR v4+</span>
+              </div>
+              <div>
+                <span class="block text-slate-500 font-medium">STT Speech Engine:</span>
+                <span id="cfg-stt" class="font-mono font-semibold text-slate-800">Local Acoustic Analyzer</span>
+              </div>
+              <div>
+                <span class="block text-slate-500 font-medium">Max Upload Size:</span>
+                <span id="cfg-upload-limit" class="font-mono font-semibold text-slate-800">50 MB</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- APPLICATION LOGIC SCRIPT -->
+  <script>
+    // State
+    let currentSessionId = 'default';
+    let currentDatasetId = null;
+    let cachedFiles = [];
+    let cachedDatasets = [];
+    let explorerPage = 1;
+
+    // Initialize App
+    window.addEventListener('DOMContentLoaded', async () => {
+      lucide.createIcons();
+      const dz = document.getElementById('drop-zone');
+      if (dz) {
+        dz.addEventListener('click', (e) => { if (e.target === dz || e.target.closest('div.max-w-md')) document.getElementById('file-input').click(); });
+        dz.addEventListener('dragover', (e) => { e.preventDefault(); dz.classList.add('border-blue-600','bg-blue-100'); });
+        dz.addEventListener('dragleave', () => dz.classList.remove('border-blue-600','bg-blue-100'));
+        dz.addEventListener('drop', (e) => { e.preventDefault(); dz.classList.remove('border-blue-600','bg-blue-100'); const input=document.getElementById('file-input'); input.files=e.dataTransfer.files; handleFileSelect({target:input}); });
+      }
+      await initSessions();
+      await loadConfig();
+      await refreshAll();
+    });
+
+    // Navigation Handler
+    function navigate(pageId) {
+      document.querySelectorAll('.page-content').forEach(el => el.classList.add('hidden'));
+      const target = document.getElementById(`page-${pageId}`);
+      if (target) target.classList.remove('hidden');
+
+      // Update nav styling
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.remove('bg-blue-600', 'text-white');
+        btn.classList.add('hover:bg-slate-800', 'hover:text-white');
+      });
+      const activeBtn = document.getElementById(`nav-${pageId}`);
+      if (activeBtn) {
+        activeBtn.classList.add('bg-blue-600', 'text-white');
+        activeBtn.classList.remove('hover:bg-slate-800');
+      }
+
+      // Page specific loads
+      if (pageId === 'home') refreshAll();
+      else if (pageId === 'upload') loadFiles();
+      else if (pageId === 'explorer') loadExplorerData();
+      else if (pageId === 'cleaning') loadCleaningHistory();
+      else if (pageId === 'analytics') initAnalyticsPage();
+      else if (pageId === 'agents') loadAgentHistory();
+      else if (pageId === 'documents') loadDocumentCards();
+      else if (pageId === 'reports') loadReports();
+      else if (pageId === 'history') loadHistory();
+      else if (pageId === 'settings') loadConfig();
+
+      lucide.createIcons();
+    }
+
+    // Sessions
+    async function initSessions() {
+      try {
+        const res = await fetch('/api/v1/sessions');
+        const sessions = await res.json();
+        const sel = document.getElementById('session-select');
+        sel.innerHTML = '';
+        if (sessions.length === 0) {
+          const createRes = await fetch('/api/v1/sessions?title=Primary%20Analysis%20Session', { method: 'POST' });
+          const newSess = await createRes.json();
+          sessions.push(newSess);
+        }
+        sessions.forEach(s => {
+          const opt = document.createElement('option');
+          opt.value = s.id;
+          opt.textContent = s.title || `Session ${s.id.slice(0, 8)}`;
+          sel.appendChild(opt);
+        });
+        currentSessionId = sessions[0].id;
+      } catch (err) {
+        console.error('Session init error:', err);
+      }
+    }
+
+    async function promptCreateSession() {
+      const name = prompt('Enter a name for the new analysis session:', 'Analysis Session ' + new Date().toLocaleDateString());
+      if (!name) return;
+      try {
+        const res = await fetch(`/api/v1/sessions?title=${encodeURIComponent(name)}`, { method: 'POST' });
+        const sess = await res.json();
+        await initSessions();
+        document.getElementById('session-select').value = sess.id;
+        currentSessionId = sess.id;
+        refreshAll();
+      } catch (e) {
+        alert('Failed to create session: ' + e);
+      }
+    }
+
+    function handleSessionChange() {
+      currentSessionId = document.getElementById('session-select').value;
+      refreshAll();
+    }
+
+    // Load Service Config
+    async function loadConfig() {
+      try {
+        const res = await fetch('/api/v1/config');
+        const cfg = await res.json();
+        document.getElementById('cfg-provider').textContent = cfg.llm_provider;
+        document.getElementById('cfg-model').textContent = cfg.llm_model;
+        document.getElementById('cfg-db').textContent = cfg.database_url;
+        document.getElementById('cfg-ocr').textContent = cfg.ocr_engine;
+        document.getElementById('cfg-stt').textContent = cfg.stt_engine;
+        document.getElementById('cfg-upload-limit').textContent = `${cfg.max_upload_size_mb} MB`;
+
+        if (cfg.llm_active) {
+          const badge = document.getElementById('badge-llm');
+          badge.className = 'px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 flex items-center gap-1 font-medium';
+          badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> LLM: Active';
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    // Refresh Master State
+    async function refreshAll() {
+      await loadFiles();
+      await loadDatasets();
+      await updateKPIs();
+    }
+
+    async function updateKPIs() {
+      document.getElementById('home-kpi-files').textContent = cachedFiles.length;
+      document.getElementById('home-kpi-datasets').textContent = cachedDatasets.length;
+      
+      try {
+        const wfRes = await fetch(`/api/v1/workflows/session/${currentSessionId}`);
+        const wfs = await wfRes.json();
+        document.getElementById('home-kpi-workflows').textContent = wfs.length;
+      } catch (e) {}
+
+      try {
+        const repRes = await fetch(`/api/v1/reports?session_id=${currentSessionId}`);
+        const reps = await repRes.json();
+        document.getElementById('home-kpi-reports').textContent = reps.length;
+      } catch (e) {}
+    }
+
+    // Files Handling
+    async function handleFileSelect(event) {
+      const files = event.target.files;
+      if (!files || files.length === 0) return;
+      
+      const formData = new FormData();
+      formData.append('session_id', currentSessionId);
+      for (let f of files) {
+        formData.append('files', f);
+      }
+
+      try {
+        const res = await fetch('/api/v1/files/upload', {
+          method: 'POST',
+          body: formData
+        });
+        const data = await res.json();
+        alert(`Successfully uploaded and processed ${data.uploaded_count} file(s)!`);
+        await refreshAll();
+        loadFiles();
+      } catch (err) {
+        alert('Upload failed: ' + err);
+      }
+    }
+
+    async function loadFiles() {
+      try {
+        const res = await fetch(`/api/v1/files?session_id=${currentSessionId}`);
+        cachedFiles = await res.json();
+        
+        // Home files
+        const homeList = document.getElementById('home-files-list');
+        if (cachedFiles.length === 0) {
+          homeList.innerHTML = '<div class="text-slate-400 py-6 text-center text-xs">No files uploaded yet in this session. Click Upload Data to begin.</div>';
+        } else {
+          homeList.innerHTML = cachedFiles.map(f => `
+            <div class="flex items-center justify-between p-2.5 rounded-lg border border-slate-100 bg-slate-50">
+              <div class="flex items-center gap-2">
+                <i data-lucide="${f.file_type === 'csv' || f.file_type === 'excel' ? 'file-spreadsheet' : f.file_type === 'pdf' ? 'file-text' : f.file_type === 'image' ? 'image' : f.file_type === 'audio' ? 'music' : 'file'}" class="w-4 h-4 text-blue-600"></i>
+                <span class="font-medium text-slate-800">${f.original_filename}</span>
+              </div>
+              <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-100 text-emerald-800 uppercase">${f.file_type}</span>
+            </div>
+          `).join('');
+        }
+
+        // Upload table
+        const tbody = document.getElementById('upload-table-body');
+        if (cachedFiles.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" class="text-center py-6 text-slate-400 text-xs">No files uploaded yet in this session.</td></tr>';
+        } else {
+          tbody.innerHTML = cachedFiles.map(f => {
+            let summary = '-';
+            if (f.extracted_metadata) {
+              const m = f.extracted_metadata;
+              if (m.row_count) summary = `${m.row_count} rows, ${m.column_count} cols`;
+              else if (m.page_count) summary = `${m.page_count} page(s), ${m.total_words} words`;
+              else if (m.width) summary = `${m.width}x${m.height} px, OCR: ${m.word_count || 0} words`;
+              else if (m.metadata && m.metadata.duration_seconds) summary = `${m.metadata.duration_seconds}s audio`;
+            }
+            return `
+              <tr class="hover:bg-slate-50">
+                <td class="py-2.5 px-3 font-medium text-slate-800">${f.original_filename}</td>
+                <td class="py-2.5 px-3"><span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-700 uppercase">${f.file_type}</span></td>
+                <td class="py-2.5 px-3 font-mono">${(f.size_bytes / 1024).toFixed(1)} KB</td>
+                <td class="py-2.5 px-3"><span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-100 text-emerald-800">${f.status}</span></td>
+                <td class="py-2.5 px-3 text-slate-500">${summary}</td>
+                <td class="py-2.5 px-3 text-right">
+                  <button onclick="deleteFile('${f.id}')" class="text-red-500 hover:text-red-700 text-xs font-semibold">Delete</button>
+                </td>
+              </tr>
+            `;
+          }).join('');
+        }
+        lucide.createIcons();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function deleteFile(fileId) {
+      if (!confirm('Are you sure you want to delete this file and associated analytics?')) return;
+      try {
+        await fetch(`/api/v1/files/${fileId}`, { method: 'DELETE' });
+        refreshAll();
+      } catch (e) {
+        alert(e);
+      }
+    }
+
+    // Datasets & Data Explorer
+    async function loadDatasets() {
+      try {
+        const res = await fetch(`/api/v1/data/datasets?session_id=${currentSessionId}`);
+        cachedDatasets = await res.json();
+        const sel = document.getElementById('explorer-dataset-select');
+        sel.innerHTML = '';
+        if (cachedDatasets.length === 0) {
+          sel.innerHTML = '<option value="">No datasets available</option>';
+          currentDatasetId = null;
+        } else {
+          cachedDatasets.forEach(d => {
+            const opt = document.createElement('option');
+            opt.value = d.id;
+            opt.textContent = `${d.original_filename} (${d.row_count} rows, ${d.column_count} cols)`;
+            sel.appendChild(opt);
+          });
+          currentDatasetId = cachedDatasets[0].id;
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    async function loadExplorerData() {
+      const selVal = document.getElementById('explorer-dataset-select').value;
+      if (!selVal) return;
+      currentDatasetId = selVal;
+
+      try {
+        // Profile stats
+        const profRes = await fetch(`/api/v1/data/${currentDatasetId}/profile`);
+        const prof = await profRes.json();
+        document.getElementById('exp-stat-rows').textContent = prof.row_count;
+        document.getElementById('exp-stat-cols').textContent = prof.column_count;
+        document.getElementById('exp-stat-missing').textContent = `${prof.total_missing_cells} (${prof.missing_percentage}%)`;
+        document.getElementById('exp-stat-dups').textContent = `${prof.total_duplicate_rows} (${prof.duplicate_percentage}%)`;
+        document.getElementById('exp-stat-memory').textContent = `${(prof.memory_usage_bytes / 1024).toFixed(1)} KB`;
+
+        // Preview rows & schema
+        const prevRes = await fetch(`/api/v1/data/${currentDatasetId}/preview?page=${explorerPage}&page_size=20`);
+        const prev = await prevRes.json();
+
+        // Schema table
+        const sBody = document.getElementById('explorer-schema-body');
+        sBody.innerHTML = prev.column_schemas.map(c => `
+          <tr>
+            <td class="py-2 px-3 font-semibold text-slate-800">${c.name}</td>
+            <td class="py-2 px-3"><span class="px-1.5 py-0.5 rounded text-[10px] font-mono bg-slate-100">${c.data_type}</span></td>
+            <td class="py-2 px-3 ${c.missing_count > 0 ? 'text-amber-600 font-semibold' : 'text-slate-500'}">${c.missing_count} (${c.missing_percentage}%)</td>
+            <td class="py-2 px-3">${c.unique_count}</td>
+            <td class="py-2 px-3 font-mono text-[11px] text-slate-500">${(c.sample_values || []).slice(0, 3).join(', ')}</td>
+          </tr>
+        `).join('');
+
+        // Rows preview
+        const thead = document.getElementById('explorer-data-head');
+        thead.innerHTML = `<tr>${prev.columns.map(c => `<th class="py-2 px-3">${c}</th>`).join('')}</tr>`;
+
+        const dBody = document.getElementById('explorer-data-body');
+        dBody.innerHTML = prev.rows.map(row => `
+          <tr>${prev.columns.map(c => `<td class="py-2 px-3 border-r border-slate-100 last:border-none">${row[c] !== null ? row[c] : '<span class="text-slate-300">null</span>'}</td>`).join('')}</tr>
+        `).join('');
+
+        document.getElementById('explorer-pagination-label').textContent = `Page ${explorerPage} of ${Math.ceil(prev.total_rows / 20) || 1}`;
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    function explorerChangePage(delta) {
+      if (explorerPage + delta >= 1) {
+        explorerPage += delta;
+        loadExplorerData();
+      }
+    }
+
+    // Data Cleaning
+    async function executeCleaning(operation, extraParams = {}) {
+      if (!currentDatasetId) {
+        alert('Please select or upload a dataset first.');
+        return;
+      }
+      let params = { ...extraParams };
+      if (operation === 'fill_missing') {
+        params.strategy = document.getElementById('clean-impute-strategy').value;
+      }
+
+      try {
+        const res = await fetch(`/api/v1/cleaning/${currentDatasetId}/operations`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ operation, parameters: params })
+        });
+        const data = await res.json();
+        alert(`Success: ${data.summary}`);
+        loadCleaningHistory();
+        loadDatasets();
+      } catch (e) {
+        alert('Cleaning operation failed: ' + e);
+      }
+    }
+
+    async function loadCleaningHistory() {
+      if (!currentDatasetId) return;
+      try {
+        const res = await fetch(`/api/v1/cleaning/${currentDatasetId}/history`);
+        const history = await res.json();
+        const tbody = document.getElementById('cleaning-history-body');
+        if (history.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="4" class="text-center py-6 text-slate-400">No cleaning operations performed on this dataset.</td></tr>';
+        } else {
+          tbody.innerHTML = history.map(h => `
+            <tr>
+              <td class="py-2.5 px-3 font-mono text-slate-500">${h.applied_at.slice(0, 19).replace('T', ' ')}</td>
+              <td class="py-2.5 px-3 font-semibold text-slate-800">${h.operation_type}</td>
+              <td class="py-2.5 px-3 font-bold text-blue-600">${h.rows_affected}</td>
+              <td class="py-2.5 px-3 text-slate-600">${h.summary}</td>
+            </tr>
+          `).join('');
+        }
+      } catch (e) {}
+    }
+
+    function exportCleanedData(format) {
+      if (!currentDatasetId) {
+        alert('No dataset available to export.');
+        return;
+      }
+      window.location.href = `/api/v1/cleaning/${currentDatasetId}/export?format=${format}`;
+    }
+
+    // Analytics Dashboard & Plotly
+    async function initAnalyticsPage() {
+      if (!currentDatasetId) return;
+      try {
+        const prevRes = await fetch(`/api/v1/data/${currentDatasetId}/preview?page=1&page_size=5`);
+        const prev = await prevRes.json();
+        const s1 = document.getElementById('stat-col-1');
+        const s2 = document.getElementById('stat-col-2');
+        s1.innerHTML = '';
+        s2.innerHTML = '';
+        prev.columns.forEach(c => {
+          s1.innerHTML += `<option value="${c}">${c}</option>`;
+          s2.innerHTML += `<option value="${c}">${c}</option>`;
+        });
+        renderSelectedChart();
+      } catch (e) {}
+    }
+
+    async function renderSelectedChart() {
+      if (!currentDatasetId) return;
+      const chartType = document.getElementById('analytics-chart-type').value;
+      try {
+        const res = await fetch('/api/v1/analytics/chart', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ dataset_id: currentDatasetId, chart_type: chartType })
+        });
+        const config = await res.json();
+        Plotly.newPlot('plotly-container', config.plotly_data, config.plotly_layout, { responsive: true });
+      } catch (e) {
+        document.getElementById('plotly-container').innerHTML = `<span class="text-red-500">Failed to render chart: ${e}</span>`;
+      }
+    }
+
+    async function runHypothesisTest() {
+      if (!currentDatasetId) return;
+      const testType = document.getElementById('stat-test-type').value;
+      const col1 = document.getElementById('stat-col-1').value;
+      const col2 = document.getElementById('stat-col-2').value;
+
+      try {
+        const res = await fetch('/api/v1/analytics/execute', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            dataset_id: currentDatasetId,
+            analysis_type: 'hypothesis_test',
+            test_type: testType,
+            col1: col1,
+            col2: col2
+          })
+        });
+        const result = await res.json();
+        const box = document.getElementById('hypothesis-result');
+        box.classList.remove('hidden');
+        box.innerHTML = `
+          <div class="font-bold text-slate-800 text-sm">${result.test_name}</div>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-2 py-2">
+            <div><span class="text-slate-400">Test Statistic:</span> <strong class="font-mono">${result.statistic}</strong></div>
+            <div><span class="text-slate-400">p-value:</span> <strong class="font-mono ${result.is_significant ? 'text-emerald-600' : 'text-slate-700'}">${result.p_value}</strong></div>
+            <div><span class="text-slate-400">Significant (α=0.05):</span> <strong>${result.is_significant ? 'YES' : 'NO'}</strong></div>
+            <div><span class="text-slate-400">Effect Size:</span> <strong class="font-mono">${result.effect_size_cohens_d || 'N/A'}</strong></div>
+          </div>
+          <p class="font-medium ${result.is_significant ? 'text-emerald-700' : 'text-slate-600'}">${result.conclusion}</p>
+        `;
+      } catch (err) {
+        alert('Hypothesis test error: ' + err);
+      }
+    }
+
+    // AI Chat
+    async function sendChatMessage() {
+      const input = document.getElementById('chat-input');
+      const text = input.value.trim();
+      if (!text) return;
+      input.value = '';
+
+      const container = document.getElementById('chat-messages');
+      container.innerHTML += `
+        <div class="flex items-start gap-3 justify-end">
+          <div class="bg-blue-600 text-white p-3.5 rounded-2xl rounded-tr-sm text-sm max-w-xl">
+            ${text}
+          </div>
+          <div class="w-8 h-8 rounded-full bg-slate-300 text-slate-700 flex items-center justify-center text-xs font-bold flex-shrink-0">You</div>
+        </div>
+      `;
+      container.scrollTop = container.scrollHeight;
+
+      try {
+        const res = await fetch('/api/v1/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            session_id: currentSessionId,
+            question: text,
+            dataset_id: currentDatasetId
+          })
+        });
+        const data = await res.json();
+        
+        let evidenceHtml = '';
+        if (data.supporting_evidence && data.supporting_evidence.length > 0) {
+          evidenceHtml = `
+            <div class="mt-2 pt-2 border-t border-slate-200 text-xs text-slate-500">
+              <strong class="text-slate-700">Verified Citations:</strong>
+              <ul class="list-disc list-inside mt-1 space-y-0.5">
+                ${data.supporting_evidence.map(e => `<li><em>${e.filename}</em> (p.${e.page_number || 1}) - "${e.snippet.slice(0, 100)}..."</li>`).join('')}
+              </ul>
+            </div>
+          `;
+        }
+
+        container.innerHTML += `
+          <div class="flex items-start gap-3">
+            <div class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold flex-shrink-0">AI</div>
+            <div class="bg-slate-100 p-3.5 rounded-2xl rounded-tl-sm text-sm text-slate-800 max-w-2xl space-y-2">
+              <div class="prose prose-sm">${data.content.replace(/\n/g, '<br/>')}</div>
+              ${evidenceHtml}
+            </div>
+          </div>
+        `;
+        container.scrollTop = container.scrollHeight;
+      } catch (e) {
+        alert('Chat request failed: ' + e);
+      }
+    }
+
+    async function clearChat() {
+      try {
+        await fetch(`/api/v1/chat/${currentSessionId}`, { method: 'DELETE' });
+        document.getElementById('chat-messages').innerHTML = '<div class="text-center py-6 text-slate-400 text-xs">Chat history cleared.</div>';
+      } catch (e) {}
+    }
+
+    // Multi-Agent Workflow
+    async function startFullAnalysisWorkflow() {
+      alert('Triggering LangGraph 6-Agent Analytical Workflow...');
+      for (let i = 1; i <= 6; i++) {
+        const badge = document.getElementById(`agent-badge-${i}`);
+        if (badge) {
+          badge.className = 'px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-100 text-amber-800 animate-pulse';
+          badge.textContent = 'RUNNING';
+        }
+      }
+
+      try {
+        const res = await fetch('/api/v1/workflows/start', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            session_id: currentSessionId,
+            dataset_id: currentDatasetId,
+            workflow_type: 'full_analytics',
+            user_query: 'Execute full multimodal ingestion, quality audit, statistical profiling, and decision support.'
+          })
+        });
+        const state = await res.json();
+        
+        for (let i = 1; i <= 6; i++) {
+          const badge = document.getElementById(`agent-badge-${i}`);
+          if (badge) {
+            badge.className = 'px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-100 text-emerald-800';
+            badge.textContent = 'COMPLETED';
+          }
+        }
+        alert('Multi-agent workflow successfully completed! Ingestion, Quality, Stats, Visuals, and Report agents finished.');
+        loadAgentHistory();
+        loadReports();
+      } catch (err) {
+        alert('Workflow execution error: ' + err);
+      }
+    }
+
+    async function loadAgentHistory() {
+      try {
+        const res = await fetch(`/api/v1/workflows/session/${currentSessionId}`);
+        const workflows = await res.json();
+        
+        // Home workflows
+        const homeList = document.getElementById('home-workflows-list');
+        if (workflows.length === 0) {
+          homeList.innerHTML = '<div class="text-slate-400 py-6 text-center text-xs">No agent workflows executed yet.</div>';
+        } else {
+          homeList.innerHTML = workflows.slice(0, 3).map(w => `
+            <div class="flex items-center justify-between p-2.5 rounded-lg border border-slate-100 bg-slate-50">
+              <span class="font-medium text-slate-800">Workflow: ${w.workflow_type}</span>
+              <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-100 text-emerald-800 uppercase">${w.status}</span>
+            </div>
+          `).join('');
+        }
+
+        // Agent center timeline
+        if (workflows.length > 0) {
+          const detailRes = await fetch(`/api/v1/workflows/${workflows[0].id}`);
+          const detail = await detailRes.json();
+          const tbody = document.getElementById('agent-timeline-body');
+          tbody.innerHTML = detail.execution_records.map(r => `
+            <tr>
+              <td class="py-2.5 px-3 font-bold text-slate-800">${r.agent_name}</td>
+              <td class="py-2.5 px-3 font-mono text-slate-500">${r.started_at ? r.started_at.slice(11, 19) : '-'}</td>
+              <td class="py-2.5 px-3 font-mono text-slate-500">${r.completed_at ? r.completed_at.slice(11, 19) : '-'}</td>
+              <td class="py-2.5 px-3"><span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-100 text-emerald-800">${r.status}</span></td>
+              <td class="py-2.5 px-3 text-slate-600">${r.outputs ? JSON.stringify(r.outputs) : 'Completed successfully'}</td>
+            </tr>
+          `).join('');
+        }
+      } catch (e) {}
+    }
+
+    // Documents & Retrieval
+    async function loadDocumentCards() {
+      const container = document.getElementById('doc-cards-container');
+      const docs = cachedFiles.filter(f => f.has_text_data || ['pdf', 'image', 'audio', 'text'].includes(f.file_type));
+      if (docs.length === 0) {
+        container.innerHTML = '<div class="col-span-2 text-center py-8 text-slate-400 text-xs">No multimodal documents (PDF, Image, Audio, Text) uploaded yet.</div>';
+      } else {
+        container.innerHTML = docs.map(d => `
+          <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-blue-100 text-blue-800 uppercase">${d.file_type}</span>
+              <span class="text-xs text-slate-400">${d.status}</span>
+            </div>
+            <h4 class="font-bold text-slate-800 text-sm truncate">${d.original_filename}</h4>
+            <div class="bg-slate-50 p-3 rounded-lg text-xs font-mono text-slate-600 max-h-36 overflow-y-auto">
+              ${d.extracted_metadata ? (d.extracted_metadata.full_text || d.extracted_metadata.ocr_text || JSON.stringify(d.extracted_metadata, null, 2)) : 'Processing content...'}
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+
+    async function searchDocuments() {
+      const q = document.getElementById('doc-search-input').value.trim();
+      if (!q) return;
+      try {
+        const res = await fetch(`/api/v1/chat`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ session_id: currentSessionId, question: q })
+        });
+        const data = await res.json();
+        const resBox = document.getElementById('doc-search-results');
+        if (data.supporting_evidence && data.supporting_evidence.length > 0) {
+          resBox.innerHTML = `
+            <div class="bg-blue-50 border border-blue-200 p-4 rounded-xl space-y-2">
+              <h4 class="font-bold text-blue-900 text-xs uppercase">Retrieved Document Passages:</h4>
+              ${data.supporting_evidence.map(e => `
+                <div class="bg-white p-3 rounded border border-blue-100 text-xs">
+                  <div class="font-semibold text-slate-800">${e.filename} (Page ${e.page_number || 1}) - Score: ${e.score}</div>
+                  <p class="text-slate-600 mt-1">"${e.snippet}"</p>
+                </div>
+              `).join('')}
+            </div>
+          `;
+        } else {
+          resBox.innerHTML = '<div class="p-4 bg-slate-100 rounded-lg text-xs text-slate-500">No matching text passages found for your query.</div>';
+        }
+      } catch (e) {
+        alert(e);
+      }
+    }
+
+    // Reports
+    async function generatePDFReport() {
+      try {
+        const res = await fetch('/api/v1/reports/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            session_id: currentSessionId,
+            dataset_id: currentDatasetId,
+            title: 'Executive Multimodal Intelligent Data Analytics Report'
+          })
+        });
+        const rep = await res.json();
+        alert('PDF Report generated successfully!');
+        loadReports();
+      } catch (e) {
+        alert('Report generation failed: ' + e);
+      }
+    }
+
+    async function loadReports() {
+      try {
+        const res = await fetch(`/api/v1/reports?session_id=${currentSessionId}`);
+        const reports = await res.json();
+        const tbody = document.getElementById('reports-table-body');
+        if (reports.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="5" class="text-center py-6 text-slate-400">No reports generated yet. Click Generate Executive PDF Report.</td></tr>';
+        } else {
+          tbody.innerHTML = reports.map(r => `
+            <tr>
+              <td class="py-2.5 px-3 font-bold text-slate-800">${r.title}</td>
+              <td class="py-2.5 px-3 font-mono text-slate-500">${r.session_id.slice(0, 8)}...</td>
+              <td class="py-2.5 px-3 font-mono text-slate-500">${r.created_at}</td>
+              <td class="py-2.5 px-3 text-slate-600 truncate max-w-xs">${r.summary}</td>
+              <td class="py-2.5 px-3 text-right">
+                <a href="/api/v1/reports/${r.id}/download" target="_blank" class="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs font-semibold inline-flex items-center gap-1">
+                  <i data-lucide="download" class="w-3 h-3"></i> PDF
+                </a>
+              </td>
+            </tr>
+          `).join('');
+          lucide.createIcons();
+        }
+      } catch (e) {}
+    }
+
+    // History
+    async function loadHistory() {
+      try {
+        const res = await fetch('/api/v1/sessions');
+        const sessions = await res.json();
+        const tbody = document.getElementById('history-sessions-body');
+        tbody.innerHTML = sessions.map(s => `
+          <tr>
+            <td class="py-2.5 px-3 font-mono text-slate-600">${s.id}</td>
+            <td class="py-2.5 px-3 font-semibold text-slate-800">${s.title}</td>
+            <td class="py-2.5 px-3 text-slate-500">${s.created_at}</td>
+            <td class="py-2.5 px-3 text-slate-500">${s.updated_at}</td>
+            <td class="py-2.5 px-3 text-right">
+              <button onclick="switchSession('${s.id}')" class="text-blue-600 hover:text-blue-800 text-xs font-semibold mr-2">Activate</button>
+              <button onclick="deleteSession('${s.id}')" class="text-red-500 hover:text-red-700 text-xs font-semibold">Delete</button>
+            </td>
+          </tr>
+        `).join('');
+      } catch (e) {}
+    }
+
+    function switchSession(id) {
+      currentSessionId = id;
+      document.getElementById('session-select').value = id;
+      refreshAll();
+      navigate('home');
+    }
+
+    async function deleteSession(id) {
+      if (!confirm('Delete this session and all its uploaded files?')) return;
+      await fetch(`/api/v1/sessions/${id}`, { method: 'DELETE' });
+      await initSessions();
+      refreshAll();
+      loadHistory();
+    }
+  </script>
+</body>
+</html>
